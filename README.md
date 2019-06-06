@@ -7,13 +7,12 @@
 
 ## Instructions
 
-Use this [rubric](https://review.udacity.com/#!/rubrics/15/view) for self-checking your submission.
+**1. How to run**
+Open `index.html` on the root folder in any browser
 
-Make sure the functions you write are **object-oriented** - either class functions (like `Player` and `Enemy`) or class prototype functions such as `Enemy.prototype.checkCollisions`. Also make sure that the keyword `this` is used appropriately within your class and class prototype functions to refer to the object the function is called upon.
-
-Your **README.md** file should be updated with instructions on both how to 1. Run and 2. Play your arcade game.
-
-For detailed instructions on how to get started, check out this [guide](https://docs.google.com/document/d/1v01aScPjSWCCWQLIpFqvg3-vXLH2e8_SZQKC8jNO0Dc/pub?embedded=true).
+**2. How to play**
+Use the arrow keys to start moving the character. Once it starts moving it can only change directions but not stop.
+Try to cross the path that is swarmed by bugs and reach the water to win. Touching any of the bugs will be game over!
 
 ## Contributing
 

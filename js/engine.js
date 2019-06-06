@@ -22,7 +22,9 @@ var Engine = (function(global) {
         win = global.window,
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
-        lastTime;
+        lastTime
+        gameOver = false
+        playerWon = false;
 
     canvas.width = 505;
     canvas.height = 606;
@@ -63,7 +65,7 @@ var Engine = (function(global) {
      * game loop.
      */
     function init() {
-        reset();
+        reset(true);
         lastTime = Date.now();
         main();
     }
@@ -78,6 +80,22 @@ var Engine = (function(global) {
      * on the entities themselves within your app.js file).
      */
     function update(dt) {
+        // update game state
+        if  (player.canMove) {
+            gameOver = false;
+        } else {
+            if (!gameOver) {
+                gameOver = true;
+                playerWon = player.won;
+                reset(false);
+                return;
+            }
+        }
+        // Avoids the user to resume the game inmediatly due to input
+        if (player.secondsToResume > 0) {
+            player.secondsToResume = Math.max(0, player.secondsToResume - dt);
+        }
+
         updateEntities(dt);
         // checkCollisions();
     }
@@ -93,7 +111,7 @@ var Engine = (function(global) {
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
-        player.update();
+        player.update(dt, allEnemies);
     }
 
     /* This function initially draws the "game level", it will then call
@@ -103,6 +121,25 @@ var Engine = (function(global) {
      * they are just drawing the entire screen over and over.
      */
     function render() {
+        // Before drawing, clear existing canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Check game state
+        if (gameOver) {
+            var gameOverText = playerWon ? "You Win!!!" : "Game Over!!!";
+            var gameOverTextPosition = playerWon ? 112 : 80;
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.font = "50px Courier New";
+            ctx.fillStyle = "white";
+            ctx.fillText(gameOverText, gameOverTextPosition, 250);
+            if (player.secondsToResume === 0) {
+                ctx.font = "20px Courier New";
+                ctx.fillText("press any key to continue", 110, 300);  
+            }
+            return;
+        }
+
         /* This array holds the relative URL to the image used
          * for that particular row of the game level.
          */
@@ -117,9 +154,6 @@ var Engine = (function(global) {
             numRows = 6,
             numCols = 5,
             row, col;
-
-        // Before drawing, clear existing canvas
-        ctx.clearRect(0,0,canvas.width,canvas.height);
 
         /* Loop through the number of rows and columns we've defined above
          * and, using the rowImages array, draw the correct image for that
@@ -156,12 +190,16 @@ var Engine = (function(global) {
         player.render();
     }
 
-    /* This function does nothing but it could have been a good place to
-     * handle game reset states - maybe a new game menu or a game over screen
-     * those sorts of things. It's only called once by the init() method.
-     */
-    function reset() {
-        // noop
+    // Now instantiate your objects.
+    // Place all enemy objects in an array called allEnemies
+    // Place the player object in a variable called player
+    function reset(playerCanMove) {
+        allEnemies = [];
+        player = new Player(playerCanMove);
+
+        for (var i = 0; i < 5; i++) {
+            allEnemies.push(new Enemy(i));
+        }
     }
 
     /* Go ahead and load all of the images we know we're going to need to
